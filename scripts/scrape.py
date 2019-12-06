@@ -1,4 +1,4 @@
-from npb.models import Team, Player, TeamYear, HitterStats, PitcherStats, MatchResult, MatchMember
+from npb.models import Team, Player, TeamYear, HitterStats, PitcherStats, MatchResult, MatchMember, Ranking, League
 from bs4 import BeautifulSoup
 import requests
 from pprint import pprint
@@ -8,8 +8,8 @@ import re
 
 
 def run():
-    scrape_lineups()
-    # scrape_match_results()
+    # scrape_ranking()
+    print("hello")
 
 
 def register_team_year():
@@ -208,6 +208,8 @@ def get_teams():
 
 
 def get_team(name):
+    if name == '横浜':
+        name = 'DeNA'
     return Team.objects.filter(name=name)[0]
 
 
@@ -344,3 +346,36 @@ def get_lineup_player(team_year, name):
         return player[0]
     else:
         return None
+
+
+def scrape_ranking():
+
+    dictionary = {
+        "1": 'first',
+        "2": 'second',
+        "3": 'third',
+        "4": 'fourth',
+        "5": 'fifth',
+        "6": 'sixth',
+    }
+
+    urls = ['https://baseball-data.com/']
+    years = ['2019']
+
+    for i in range(10):
+        year = str(i + 2009)
+        years.append(year)
+        url = f'https://baseball-data.com/{year[2:]}/'
+        urls.append(url)
+
+    for idx, (year, url) in enumerate(zip(years, urls)):
+        soup = init_request(url)
+        table = soup.find_all('table')[1]
+        trs = table.find_all('tr')
+        ranking = Ranking()
+        ranking.year = year
+        ranking.league = League.objects.get(pk=2)
+        for tr in trs[1:]:
+            tds = [td.text for td in tr.find_all('td')]
+            setattr(ranking, dictionary[tds[0]], get_team(tds[1]))
+        ranking.save()

@@ -12,7 +12,16 @@ def cls_str(cls):
     return rep
 
 
+class League(models.Model):
+    name = models.CharField(max_length=10)
+
+    def __str__(self):
+        return cls_str(self)
+
+
 class Team(models.Model):
+    league = models.ForeignKey(
+        to=League, on_delete=models.DO_NOTHING, null=True)
     name = models.CharField(max_length=30)
     abb = models.CharField(max_length=2, null=True)
     spell = models.CharField(max_length=30, null=True)
@@ -153,6 +162,27 @@ class MatchMember(models.Model):
         to=Player, on_delete=models.DO_NOTHING, related_name="eights", null=True)
     nineth = models.ForeignKey(
         to=Player, on_delete=models.DO_NOTHING, related_name="nineth", null=True)
+
+    def __str__(self):
+        return cls_str(self)
+
+
+class Ranking(models.Model):
+    year = models.CharField(max_length=4)
+    league = models.ForeignKey(
+        to=League, on_delete=models.DO_NOTHING, null=True)
+    first = models.ForeignKey(
+        to=Team, on_delete=models.DO_NOTHING, related_name="first")
+    second = models.ForeignKey(
+        to=Team, on_delete=models.DO_NOTHING, related_name="second")
+    third = models.ForeignKey(
+        to=Team, on_delete=models.DO_NOTHING, related_name="third")
+    fourth = models.ForeignKey(
+        to=Team, on_delete=models.DO_NOTHING, related_name="fourth")
+    fifth = models.ForeignKey(
+        to=Team, on_delete=models.DO_NOTHING, related_name="fifth")
+    sixth = models.ForeignKey(
+        to=Team, on_delete=models.DO_NOTHING, related_name="sixth")
 
     def __str__(self):
         return cls_str(self)
